@@ -3,9 +3,10 @@
 // зависят от языка задачи
 //
 interface LangSuit {
-	lang: string;
-	open: string;
+	open: string; 
 	close: string;
+	begin: string; 
+	end: string
 	cond: RegExp;
 	brackets: RegExp;
 }
@@ -13,30 +14,34 @@ interface LangSuit {
 export function lang_suit(lang: string): LangSuit {
 	const dict: Record<string, LangSuit> = {
 		csharp: {
-			lang: 'csharp',
 			open: '/*',
 			close: '*/',
+			begin: "//BEGIN",
+			end: "//END",
 			cond: /\/\*[\s\S]*?\*\//g,
 			brackets: /(\/\/BEGIN)([\s\S]*?)(\/\/END)/g,
 		},
 		python: {
-			lang: 'python',
 			open: '"""',
 			close: '"""',
+			begin: "#BEGIN",
+			end: "#END",
 			cond: /"""[\s\S]*?"""/g,
 			brackets: /(#BEGIN)([\s\S]*?)(#END)/g,
 		},
 		javascript: {
-			lang: 'javascript',
 			open: '/*',
 			close: '*/',
+			begin: "//BEGIN",
+			end: "//END",
 			cond: /\/\*[\s\S]*?\*\//g,
 			brackets: /(\/\/BEGIN)([\s\S]*?)(\/\/END)/g,
 		},
 		haskell: {
-			lang: 'haskell',
 			open: '{-',
 			close: '-}',
+			begin: "--BEGIN",
+			end: "--END",
 			cond: /\{-[\s\S]*?-\}/g,
 			brackets: /(\--BEGIN)([\s\S]*?)(\--END)/g,
 		},

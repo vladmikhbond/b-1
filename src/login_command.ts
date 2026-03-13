@@ -5,9 +5,9 @@ import { lang_suit } from './utils';
 
 export type Problem = { id: string, lang: string, cond: string, view: string };
 
-let accessToken: string | undefined;
+export let accessToken: string | undefined;
 
-export let problem: Problem | null = null;
+export let problem: Problem | undefined;
 
 export async function loginCommand() {
 
@@ -17,17 +17,21 @@ export async function loginCommand() {
 
     accessToken = await getToken(username, password);
 
-    problem = await getProblem(pset_title);
-    if (!problem) {
+    const prob = await getProblem(pset_title);
+
+
+
+    if (!prob) {
         vscode.window.showErrorMessage("Init proc is not succesful. Problem = null")
         return;
     }
 	// Show the problem condition in a new editor
-	let {lang, open, close} = lang_suit(problem.lang);
-	let content = open+"\n" + problem.cond + "\n" + close + "\n" + problem.view; 
+	let {open, close, begin, end} = lang_suit(prob.lang);
+	let content = open +"\n" + prob.cond + "\n" + close + "\n" + begin + "\n" + prob.view + "\n" + end; 
     await saveAndOpenEditor(content);
 
     vscode.window.showInformationMessage("Ready to code.");
+    return prob;
 }
 
 
@@ -98,11 +102,11 @@ async function getToken(username: string, password: string) {
     }
 } 
 
-async function getProblem(pset_title: string): Promise<Problem | null> {
+async function getProblem(pset_title: string) {
 
     if (!accessToken) {
         vscode.window.showErrorMessage("Not authenticated");
-        return null;
+        return;
     }
     try {
 
@@ -110,7 +114,6 @@ async function getProblem(pset_title: string): Promise<Problem | null> {
         const response = await fetch(`http://127.0.0.1:7001/solving/vscode/${pset_title}`, {
             headers: {
                 cookie: `access_token=${accessToken}`
-                // Authorization: `Bearer ${}`
             }
         });
 
@@ -118,14 +121,12 @@ async function getProblem(pset_title: string): Promise<Problem | null> {
             throw new Error(`HTTP ${response.status}`);
         }
 
-        const problem: Problem = <Problem> await response.json();
-        return problem;
+        const problemResponse: Problem  = <Problem> await response.json();
+        return problemResponse;
 
     } catch (err: any) {
         vscode.window.showErrorMessage("Open problem failed: " + err.message);
     }
-    return null;
-
 }
 
 async function saveAndOpenEditor(content: string) {
