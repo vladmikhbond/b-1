@@ -7,8 +7,8 @@ export let accessToken: string | undefined;
 export type Problem = { id: string, lang: string, cond: string, view: string };
 export let problem: Problem | undefined;
 
-export async function loginCommand() {
-
+export async function loginCommand() 
+{
     // input
     const [username, password, pset_title] = await input();
     if (!username) return;   

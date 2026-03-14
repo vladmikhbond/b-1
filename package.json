@@ -16,9 +16,18 @@
       },
       {
         "command": "pss.check",
-        "title": "PSS: Check"
+        "title": "CHECK"
       }
-    ]
+    ],
+    "menus": {
+			"editor/title": [
+				{
+					"command": "pss.check",
+					"group": "navigation"
+				}
+			]
+		}
+
   },
   "scripts": {
     "compile": "tsc -p ./"
