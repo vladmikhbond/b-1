@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { loginCommand} from './login_command';
-import { checkCommand} from './check_command';
+import { loginCommand, disposeTrace } from './login_command';
+import { checkCommand, focus_spy} from './check_command';
 
 
 
@@ -12,20 +12,12 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(disposable2);
     
     
-    const disposable = vscode.window.onDidChangeWindowState((state) => {
-
-        if (!state.focused) {
-            console.log("VS Code window is not active");
-        } else {
-            console.log("VS Code window is active again");
-        }
-
-    });
+    const disposable = vscode.window.onDidChangeWindowState(focus_spy);
 
     context.subscriptions.push(disposable);
 }
 
 export function deactivate() {
-    // accessToken = undefined;
+    disposeTrace();
 }
 

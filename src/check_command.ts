@@ -1,31 +1,44 @@
 import * as vscode from 'vscode';
 import { lang_suit } from './utils';
-
 import * as login from './login_command';
 
 let fcounter = 0;
 
-// CHECK - send solving and track
+export function focus_spy(state: vscode.WindowState) 
+{
+    if (!state.focused) {
+        fcounter += 1;
+        login.trace?.addComment("FOCUS LOST " + fcounter )
+    }
+}
+
+// CHECK - send to the server solving and track
 //
 export async function checkCommand() {
 
     if (!login.problem) {
-        vscode.window.showErrorMessage("Init proc is not succesful. Problem = null")
+        vscode.window.showErrorMessage("Init proc is not successful. Problem = null");
         return;
     }
-	try {
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) {
-			vscode.window.showErrorMessage("No active editor");
-			return;
-		}
-		let data = {
-            "problem_id": login.problem.id, 
-            "solving": getUserSolving(editor, login.problem),
-            "trace": login.trace?.toJson()
+
+    if (!login.accessToken) {
+        vscode.window.showErrorMessage("Not authenticated. Please run login first.");
+        return;
+    }
+
+    try {
+        const editor = login.editor ?? vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor");
+            return;
+        }
+
+        const data = {
+            problem_id: login.problem.id,
+            solving: getUserSolving(editor, login.problem),
+            trace: login.trace?.toJson()
         };
 
-        // const response = await fetch("https://tss.co.ua:7071/check/", {
         const response = await fetch("http://127.0.0.1:7001/check/", {
             method: "POST",
             headers: {
@@ -64,7 +77,7 @@ export async function checkCommand() {
 // Якщо є викладацькі дужки, повертається їхній вміст.
 // Якщо їх немає, повертається все, крім умови завдання у першому багаторядковому коменті.
 //
-function getUserSolving(editor: vscode.TextEditor, problem: login.Problem)
+export function getUserSolving(editor: vscode.TextEditor, problem: login.Problem)
 {
 	let {cond, brackets} = lang_suit(problem.lang);
 	let screen = editor.document.getText();	

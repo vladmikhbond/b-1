@@ -1,49 +1,81 @@
 import * as vscode from 'vscode';
 import { lang_suit } from './utils';
 import { Trace } from './trace';
+import { getUserSolving } from './check_command';
 
 const TRACE_INTERVAL = 3000;
+let timer: NodeJS.Timeout | undefined;
 
 export let accessToken: string | undefined;
-export type Problem = { id: string, lang: string, cond: string, view: string };
+export type Problem = { 
+    id: string, 
+    lang: string, 
+    cond: string, 
+    view: string,
+    seconds: number
+};
 export let problem: Problem | undefined;
+export let deadline: number = 0; 
 export let trace: Trace | undefined;
+export let editor: vscode.TextEditor | undefined;
+
 
 export async function loginCommand() 
 {
-    // input
     const [username, password, pset_title] = await input();
-    if (!username) return;   
 
-    accessToken = await getToken(username, password);
-    
-    // Save a problem
-    problem = await getProblem(pset_title);
-    if (!problem) {
-        vscode.window.showErrorMessage("Init proc is not succesful. Problem = null")
+    if (!username || !password || !pset_title) {
+        vscode.window.showErrorMessage("Login canceled or incomplete input.");
         return;
     }
-	
-    // Show the problem condition in a new editor
-	let {open, close, begin, end} = lang_suit(problem.lang);
-	let content = open +"\n" + problem.cond + "\n" + close + "\n" + begin + "\n" + problem.view + "\n" + end; 
-    const editor = await saveAndOpenEditor(content);
 
+    accessToken = await getToken(username, password);
+    if (!accessToken) {
+         vscode.window.showErrorMessage("No access token.");
+        return;
+    }
 
-    // константа TRACE_INTERVAL, класс Trace у файлі Trace.js
-    trace = new Trace();
-    trace.addText(editor?.document.getText() ?? "");
+    problem = await getProblem(pset_title);
+    if (!problem) {
+        vscode.window.showErrorMessage("Cannot to get a problem.");
+        return;
+    }
+
+    const { open, close, begin, end } = lang_suit(problem.lang);
+    const view = `${open}\n${problem.cond}\n${close}\n${begin}\n${problem.view}\n${end}`;
+    editor = await saveAndOpenEditor(view);
+    if (!editor) {
+        vscode.window.showErrorMessage("No code editor.");
+        return;
+    }
     
-    setInterval(() => {
-        trace!.addText(editor?.document.getText() ?? "");
-    }, TRACE_INTERVAL);
-    
+    trace = await initTracer();
+    if (!trace) {
+        vscode.window.showErrorMessage("No tracer.");
+        return;
+    }
+
+    // Init OK
     vscode.window.showInformationMessage("Ready to code.");
 }
 
 
+async function initTracer() {
+    const trace = new Trace();
+    trace.addText(getUserSolving(editor!, problem!));
 
-async function input(): Promise<string[]> 
+    if (timer) {
+        clearInterval(timer);
+    }
+    timer = setInterval(() => {
+        trace!.addText(getUserSolving(editor!, problem!));
+    }, TRACE_INTERVAL);
+    return trace;
+}
+
+
+
+async function input()
 {
     return ["tutor", "qweszxcQWESZXC", "111"];
     // const username = await vscode.window.showInputBox({
@@ -77,13 +109,12 @@ async function input(): Promise<string[]>
     // return [username, password, pset_title];
 }
 
-async function getToken(username: string, password: string) {
+async function getToken(username: string, password: string): Promise<string | undefined> {
     try {
         const body = new URLSearchParams();
         body.append("username", username);
         body.append("password", password);
 
-        // const response = await fetch("https://tss.co.ua:7073/token/", {
         const response = await fetch("http://127.0.0.1:7003/token/", {
             method: "POST",
             headers: {
@@ -96,28 +127,25 @@ async function getToken(username: string, password: string) {
             throw new Error(`HTTP ${response.status}`);
         }
 
-        const tokenResponse: any = await response.json();
-
+        const tokenResponse: unknown = await response.json();
         if (typeof tokenResponse === "string") {
             return tokenResponse;
-        } else {
-            throw new Error("Unexpected token response format");
         }
+
+        throw new Error("Unexpected token response format");
+    } catch (err: any) {
+        vscode.window.showErrorMessage("Login failed: " + (err?.message ?? String(err)));
+        return;
     }
-    catch (err: any) {
-        vscode.window.showErrorMessage("Login failed: " + err.message);
-    }
-} 
+}
 
 async function getProblem(pset_title: string) {
-
     if (!accessToken) {
         vscode.window.showErrorMessage("Not authenticated");
         return;
     }
-    try {
 
-        // const response = await fetch(`https://tss.co.ua:7071/solving/vscode/${pset_title}`, {
+    try {
         const response = await fetch(`http://127.0.0.1:7001/solving/vscode/${pset_title}`, {
             headers: {
                 cookie: `access_token=${accessToken}`
@@ -128,30 +156,42 @@ async function getProblem(pset_title: string) {
             throw new Error(`HTTP ${response.status}`);
         }
 
-        const problemResponse: Problem  = <Problem> await response.json();
-        return problemResponse;
+        const problemResponse: unknown = await response.json();
+        if (!problemResponse || typeof problemResponse !== "object") {
+            throw new Error("Invalid problem payload");
+        }
+        deadline = Date.now() + (problemResponse as Problem).seconds * 1000;
 
+        return problemResponse as Problem;
     } catch (err: any) {
-        vscode.window.showErrorMessage("Open problem failed: " + err.message);
+        vscode.window.showErrorMessage("Open problem failed: " + (err?.message ?? String(err)));
+        return;
     }
 }
 
-async function saveAndOpenEditor(content: string) {
+async function saveAndOpenEditor(text: string) {
 
     const folder = vscode.workspace.workspaceFolders?.[0];
 
     if (!folder) {
-        vscode.window.showErrorMessage("Open a folder.");
+        vscode.window.showErrorMessage("No opened folder. Open a folder.");
         return;
     }
     const fileUri = vscode.Uri.joinPath(folder.uri, "prog.py");
 
     await vscode.workspace.fs.writeFile(
         fileUri,
-        Buffer.from(content, "utf8")
+        Buffer.from(text, "utf8")
     );
 
     const doc = await vscode.workspace.openTextDocument(fileUri);
     return await vscode.window.showTextDocument(doc);
+}
+
+export function disposeTrace() {
+    if (timer) {
+        clearInterval(timer);
+        timer = undefined;
+    }
 }
 
