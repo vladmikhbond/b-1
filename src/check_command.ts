@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import fetch from 'node-fetch';
 import { lang_suit } from './utils';
 
 import * as login from './login_command';

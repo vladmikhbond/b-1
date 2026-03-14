@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
     {
+        "name": "Launch Extension",
+        "type": "extensionHost",
+        "request": "launch",
+        "preLaunchTask": "npm: compile",
         "args": [
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
-        "name": "Launch Extension",
         "outFiles": [
             "${workspaceFolder}/out/**/*.js"
-        ],
-
-        "request": "launch",
-        "type": "extensionHost"
+        ]
     }
     ]
 }

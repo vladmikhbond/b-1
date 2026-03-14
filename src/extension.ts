@@ -9,7 +9,20 @@ export function activate(context: vscode.ExtensionContext) {
     const disposable1 = vscode.commands.registerCommand('pss.login', loginCommand );
     context.subscriptions.push(disposable1); // Make sure to dispose of the object when the extension is deactivated
 	const disposable2 = vscode.commands.registerCommand('pss.check', checkCommand);
-	context.subscriptions.push(disposable2);	
+	context.subscriptions.push(disposable2);
+    
+    
+    const disposable = vscode.window.onDidChangeWindowState((state) => {
+
+        if (!state.focused) {
+            console.log("VS Code window is not active");
+        } else {
+            console.log("VS Code window is active again");
+        }
+
+    });
+
+    context.subscriptions.push(disposable);
 }
 
 export function deactivate() {
