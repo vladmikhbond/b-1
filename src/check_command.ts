@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { lang_suit } from './utils';
-import { problem, Problem, accessToken} from './login_command';
 
-// CHECK - send solving and log
+import * as login from './login_command';
+
+
+// CHECK - send solving and track
 //
 export async function checkCommand() {
+    let problem = login.problem;
     if (!problem) {
         vscode.window.showErrorMessage("Init proc is not succesful. Problem = null")
         return;
@@ -19,15 +22,15 @@ export async function checkCommand() {
 		let data = {
             "problem_id": problem.id, 
             "solving": getUserSolving(editor, problem),
-            "trace": null
+            "trace": "[]"
         };
 
-        // const response = await fetch("https://tss.co.ua:7073/check/", {
-        const response = await fetch("http://127.0.0.1:7003/check/", {
+        // const response = await fetch("https://tss.co.ua:7071/check/", {
+        const response = await fetch("http://127.0.0.1:7001/check/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                cookie: `access_token=${accessToken}`
+                cookie: `access_token=${login.accessToken}`
             },
             body: JSON.stringify(data)
         });
@@ -37,8 +40,11 @@ export async function checkCommand() {
         }
         
         const check_answer: any = await response.json();
+        if (check_answer.startsWith("OK")) 
+            vscode.window.showInformationMessage(JSON.stringify(check_answer));
+        else
+            vscode.window.showErrorMessage(JSON.stringify(check_answer));
 
-        vscode.window.showInformationMessage(JSON.stringify(check_answer))
          
 	} catch (err: any) {
 		vscode.window.showErrorMessage(err?.code ?? err?.message ?? String(err));

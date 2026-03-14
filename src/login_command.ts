@@ -2,11 +2,9 @@ import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { lang_suit } from './utils';
 
-
-export type Problem = { id: string, lang: string, cond: string, view: string };
-
 export let accessToken: string | undefined;
 
+export type Problem = { id: string, lang: string, cond: string, view: string };
 export let problem: Problem | undefined;
 
 export async function loginCommand() {
@@ -18,9 +16,6 @@ export async function loginCommand() {
     accessToken = await getToken(username, password);
 
     const prob = await getProblem(pset_title);
-
-
-
     if (!prob) {
         vscode.window.showErrorMessage("Init proc is not succesful. Problem = null")
         return;
@@ -29,9 +24,10 @@ export async function loginCommand() {
 	let {open, close, begin, end} = lang_suit(prob.lang);
 	let content = open +"\n" + prob.cond + "\n" + close + "\n" + begin + "\n" + prob.view + "\n" + end; 
     await saveAndOpenEditor(content);
+    // Save prob as problem
+    problem = prob;
 
     vscode.window.showInformationMessage("Ready to code.");
-    return prob;
 }
 
 
