@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { lang_suit } from './utils';
+import { Trace } from './trace';
+
+const TRACE_INTERVAL = 3000;
 
 export let accessToken: string | undefined;
-
 export type Problem = { id: string, lang: string, cond: string, view: string };
 export let problem: Problem | undefined;
+export let trace: Trace | undefined;
 
 export async function loginCommand() 
 {
@@ -14,19 +17,28 @@ export async function loginCommand()
     if (!username) return;   
 
     accessToken = await getToken(username, password);
-
-    const prob = await getProblem(pset_title);
-    if (!prob) {
+    
+    // Save a problem
+    problem = await getProblem(pset_title);
+    if (!problem) {
         vscode.window.showErrorMessage("Init proc is not succesful. Problem = null")
         return;
     }
-	// Show the problem condition in a new editor
-	let {open, close, begin, end} = lang_suit(prob.lang);
-	let content = open +"\n" + prob.cond + "\n" + close + "\n" + begin + "\n" + prob.view + "\n" + end; 
-    await saveAndOpenEditor(content);
-    // Save prob as problem
-    problem = prob;
+	
+    // Show the problem condition in a new editor
+	let {open, close, begin, end} = lang_suit(problem.lang);
+	let content = open +"\n" + problem.cond + "\n" + close + "\n" + begin + "\n" + problem.view + "\n" + end; 
+    const editor = await saveAndOpenEditor(content);
 
+
+    // константа TRACE_INTERVAL, класс Trace у файлі Trace.js
+    trace = new Trace();
+    trace.addText(editor?.document.getText() ?? "");
+    
+    setInterval(() => {
+        trace!.addText(editor?.document.getText() ?? "");
+    }, TRACE_INTERVAL);
+    
     vscode.window.showInformationMessage("Ready to code.");
 }
 
@@ -130,7 +142,7 @@ async function saveAndOpenEditor(content: string) {
     const folder = vscode.workspace.workspaceFolders?.[0];
 
     if (!folder) {
-        vscode.window.showErrorMessage("Open any folder.");
+        vscode.window.showErrorMessage("Open a folder.");
         return;
     }
     const fileUri = vscode.Uri.joinPath(folder.uri, "prog.py");
@@ -141,6 +153,6 @@ async function saveAndOpenEditor(content: string) {
     );
 
     const doc = await vscode.workspace.openTextDocument(fileUri);
-    await vscode.window.showTextDocument(doc);
+    return await vscode.window.showTextDocument(doc);
 }
 
