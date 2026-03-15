@@ -1,23 +1,20 @@
 import * as vscode from 'vscode';
-import { loginCommand, disposeTrace } from './login_command';
+import { loginCommand, disposeLogin } from './login_command';
 import { checkCommand, focus_spy} from './check_command';
-
 
 
 export function activate(context: vscode.ExtensionContext) {
 
-    const disposable1 = vscode.commands.registerCommand('pss.login', loginCommand );
-    context.subscriptions.push(disposable1); // Make sure to dispose of the object when the extension is deactivated
-	const disposable2 = vscode.commands.registerCommand('pss.check', checkCommand);
-	context.subscriptions.push(disposable2);
+    let disposable = vscode.commands.registerCommand('b1.login', loginCommand );
+    context.subscriptions.push(disposable); 
+	disposable = vscode.commands.registerCommand('b1.check', checkCommand);
+	context.subscriptions.push(disposable);
     
-    
-    const disposable = vscode.window.onDidChangeWindowState(focus_spy);
-
+    disposable = vscode.window.onDidChangeWindowState(focus_spy);
     context.subscriptions.push(disposable);
 }
 
 export function deactivate() {
-    disposeTrace();
+    disposeLogin();
 }
 

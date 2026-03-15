@@ -1,6 +1,6 @@
 {
   "name": "b1",
-  "displayName": "PSS IDE",
+  "displayName": "b1",
   "description": "IDE for PSS",
   "version": "1.0.0",
   "publisher": "your-name",
@@ -14,24 +14,24 @@
   },
   "main": "./out/extension.js",
   "activationEvents": [
-    "onCommand:pss.login",
-    "onCommand:pss.check"
+    "onCommand:b1.login",
+    "onCommand:b1.check"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "pss.login",
-        "title": "PSS: Login"
+        "command": "b1.login",
+        "title": "b1: Login"
       },
       {
-        "command": "pss.check",
+        "command": "b1.check",
         "title": "CHECK"
       }
     ],
     "menus": {
 			"editor/title": [
 				{
-					"command": "pss.check",
+					"command": "b1.check",
 					"group": "navigation"
 				}
 			]

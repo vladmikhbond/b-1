@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { lang_suit, restTime } from './utils';
+import { langSuit, restTime } from './utils';
 import { Trace } from './trace';
 import { getUserSolving } from './check_command';
 
@@ -22,8 +22,9 @@ export let editor: vscode.TextEditor | undefined;
 
 export async function loginCommand() 
 {
+    // access token
     const [username, password, pset_title] = await input();
-
+    
     if (!username || !password || !pset_title) {
         vscode.window.showErrorMessage("Login canceled or incomplete input.");
         return;
@@ -35,6 +36,7 @@ export async function loginCommand()
         return;
     }
 
+    // problem to solve
     problem = await getProblem(pset_title);
     if (!problem) {
         vscode.window.showErrorMessage("Cannot to get a problem.");
@@ -42,9 +44,9 @@ export async function loginCommand()
     }
     deadline = Date.now() + problem.seconds * 1000;
 
-    const { open, close, begin, end } = lang_suit(problem.lang);
-    const view = `${open}\n${problem.cond}\n${close}\n${begin}\n${problem.view}\n${end}`;
-    editor = await saveAndOpenEditor(view);
+    // code editor
+
+    editor = await saveAndOpenEditor(problem);
     if (!editor) {
         vscode.window.showErrorMessage("No code editor.");
         return;
@@ -56,7 +58,7 @@ export async function loginCommand()
         return;
     }
 
-    // 
+    // Successful initialization
     vscode.window.showInformationMessage(`Rest time = ${restTime()}`);
 }
 
@@ -168,15 +170,18 @@ async function getProblem(pset_title: string) {
     }
 }
 
-async function saveAndOpenEditor(text: string) {
-
+async function saveAndOpenEditor(problem: Problem) 
+{
     const folder = vscode.workspace.workspaceFolders?.[0];
-
     if (!folder) {
         vscode.window.showErrorMessage("No opened folder. Open a folder.");
         return;
     }
-    const fileUri = vscode.Uri.joinPath(folder.uri, "prog.py");
+
+    const { ext, open, close, begin, end } = langSuit(problem.lang);
+    const text = `${open}\n${problem.cond}\n${close}\n${begin}\n${problem.view}\n${end}`;
+    
+    const fileUri = vscode.Uri.joinPath(folder.uri, `prog.${ext}`);
 
     await vscode.workspace.fs.writeFile(
         fileUri,
@@ -187,7 +192,8 @@ async function saveAndOpenEditor(text: string) {
     return await vscode.window.showTextDocument(doc);
 }
 
-export function disposeTrace() {
+export function disposeLogin() {
+    accessToken = undefined;    
     if (timer) {
         clearInterval(timer);
         timer = undefined;

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { lang_suit, restTime } from './utils';
+import { langSuit, restTime } from './utils';
 import * as login from './login_command';
 
 let fcounter = 0;
@@ -82,7 +82,7 @@ export async function checkCommand() {
 //
 export function getUserSolving(editor: vscode.TextEditor, problem: login.Problem)
 {
-	let {cond, brackets} = lang_suit(problem.lang);
+	let {cond, brackets} = langSuit(problem.lang);
 	let screen = editor.document.getText();	
     
 	let match = brackets.exec(screen);
