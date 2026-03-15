@@ -15,7 +15,8 @@
   "main": "./out/extension.js",
   "activationEvents": [
     "onCommand:b1.login",
-    "onCommand:b1.check"
+    "onCommand:b1.check",
+    "onCommand:b1.help"
   ],
   "contributes": {
     "commands": [
@@ -26,12 +27,20 @@
       {
         "command": "b1.check",
         "title": "CHECK"
+      },
+      {
+        "command": "b1.help",
+        "title": "HELP"
       }
     ],
     "menus": {
 			"editor/title": [
 				{
 					"command": "b1.check",
+					"group": "navigation"
+				},
+				{
+					"command": "b1.help",
 					"group": "navigation"
 				}
 			]
