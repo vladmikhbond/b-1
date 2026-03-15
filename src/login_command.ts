@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { langSuit, restTime } from './utils';
 import { Trace } from './trace';
 import { getUserSolving } from './check_command';
+import {HOST_1, HOST_3} from './extension';
 
 const TRACE_INTERVAL = 3000;
 let timer: NodeJS.Timeout | undefined;
@@ -76,40 +77,38 @@ async function initTracer() {
     return trace;
 }
 
-
-
 async function input()
 {
-    return ["tutor", "qweszxcQWESZXC", "111"];
-    // const username = await vscode.window.showInputBox({
-    //     prompt: "Enter username"
-    // });
+    // return ["tutor", "qweszxcQWESZXC", "111"];
 
-    // if (!username) {
-    //     vscode.window.showErrorMessage("Username is required");
-    //     return ["", "", ""];
-    // }
+    const username = await vscode.window.showInputBox({
+        prompt: "Enter username"
+    });
 
-    // const password = await vscode.window.showInputBox({
-    //     prompt: "Enter password",
-    //     password: true
-    // });
+    if (!username) {
+        vscode.window.showErrorMessage("Username is required");
+        return ["", "", ""];
+    }
 
-    // if (!password) {
-    //     vscode.window.showErrorMessage("Password is required");
-    //     return ["", "", ""];
-    // }
+    const password = await vscode.window.showInputBox({
+        prompt: "Enter password",
+        password: true
+    });
 
-    // const pset_title = await vscode.window.showInputBox({
-    //     prompt: "Enter pset_title",
-    //     password: true
-    // });
+    if (!password) {
+        vscode.window.showErrorMessage("Password is required");
+        return ["", "", ""];
+    }
 
-    // if (!pset_title) {
-    //     vscode.window.showErrorMessage("Worbook is required");
-    //     return ["", "", ""];
-    // }
-    // return [username, password, pset_title];
+    const pset_title = await vscode.window.showInputBox({
+        prompt: "Enter pset_title"
+    });
+
+    if (!pset_title) {
+        vscode.window.showErrorMessage("Worbook is required");
+        return ["", "", ""];
+    }
+    return [username, password, pset_title];
 }
 
 async function getToken(username: string, password: string): Promise<string | undefined> {
@@ -118,7 +117,7 @@ async function getToken(username: string, password: string): Promise<string | un
         body.append("username", username);
         body.append("password", password);
 
-        const response = await fetch("http://127.0.0.1:7003/token/", {
+        const response = await fetch(`${HOST_3}/token/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -149,7 +148,8 @@ async function getProblem(pset_title: string) {
     }
 
     try {
-        const response = await fetch(`http://127.0.0.1:7001/solving/vscode/${pset_title}`, {
+        // TODO: url encoding ?
+        const response = await fetch(`${HOST_1}/solving/vscode/${pset_title}`, {
             headers: {
                 cookie: `access_token=${accessToken}`
             }

@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { langSuit, restTime } from './utils';
 import * as login from './login_command';
+import {HOST_1} from './extension';
+
 
 let fcounter = 0;
 
@@ -39,7 +41,7 @@ export async function checkCommand() {
             trace: login.trace?.toJson()
         };
 
-        const response = await fetch("http://127.0.0.1:7001/check/", {
+        const response = await fetch(`${HOST_1}/check/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
