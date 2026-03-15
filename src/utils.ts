@@ -1,3 +1,4 @@
+import {deadline} from './login_command';
 
 // Символы комментария в условии задачи и регулярное выражение для выделения решения
 // зависят от языка задачи
@@ -49,4 +50,11 @@ export function lang_suit(lang: string): LangSuit {
 
 	// Return a fallback so that callers don't crash on unsupported languages.
 	return dict[lang] ?? dict.python;
+}
+
+export function restTime() {
+	let totsec = (deadline - Date.now()) /1000 | 0;
+	let sec = totsec % 60;
+	let min = (totsec - sec) / 60;
+	return `${min}' ${sec}"`;
 }

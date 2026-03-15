@@ -8,10 +8,10 @@ export class Trace {
     lastText = "";
 
     // ??????????????
-    constructor() {
-        this.diffs = [];
-        this.lastText = "";
-    }
+    // constructor() {
+    //     this.diffs = [];
+    //     this.lastText = "";
+    // }
 
     // Екземпляр траси з масиву різниць
     //

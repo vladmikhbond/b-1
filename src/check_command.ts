@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { lang_suit } from './utils';
+import { lang_suit, restTime } from './utils';
 import * as login from './login_command';
 
 let fcounter = 0;
@@ -60,12 +60,15 @@ export async function checkCommand() {
         }
 
         // відображує результат віддаленої перевірки рішення 
+        vscode.window.showInformationMessage(`Rest time = ${restTime()}`);
+        
         const check_answer: any = await response.json();
         if (check_answer.startsWith("OK")) {
             vscode.window.showInformationMessage(JSON.stringify(check_answer));
         } else {
             vscode.window.showErrorMessage(JSON.stringify(check_answer));
         }
+        
     
     // зовсім неочікувані помилки
 	} catch (err: any) {

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { lang_suit } from './utils';
+import { lang_suit, restTime } from './utils';
 import { Trace } from './trace';
 import { getUserSolving } from './check_command';
 
@@ -15,7 +15,7 @@ export type Problem = {
     seconds: number
 };
 export let problem: Problem | undefined;
-export let deadline: number = 0; 
+export let deadline: number;  // date in msec
 export let trace: Trace | undefined;
 export let editor: vscode.TextEditor | undefined;
 
@@ -40,6 +40,7 @@ export async function loginCommand()
         vscode.window.showErrorMessage("Cannot to get a problem.");
         return;
     }
+    deadline = Date.now() + problem.seconds * 1000;
 
     const { open, close, begin, end } = lang_suit(problem.lang);
     const view = `${open}\n${problem.cond}\n${close}\n${begin}\n${problem.view}\n${end}`;
@@ -55,8 +56,8 @@ export async function loginCommand()
         return;
     }
 
-    // Init OK
-    vscode.window.showInformationMessage("Ready to code.");
+    // 
+    vscode.window.showInformationMessage(`Rest time = ${restTime()}`);
 }
 
 
@@ -160,8 +161,6 @@ async function getProblem(pset_title: string) {
         if (!problemResponse || typeof problemResponse !== "object") {
             throw new Error("Invalid problem payload");
         }
-        deadline = Date.now() + (problemResponse as Problem).seconds * 1000;
-
         return problemResponse as Problem;
     } catch (err: any) {
         vscode.window.showErrorMessage("Open problem failed: " + (err?.message ?? String(err)));
