@@ -146,10 +146,12 @@ async function getProblem(pset_title: string) {
         vscode.window.showErrorMessage("Not authenticated");
         return;
     }
-
+    // TODO: url encoding ?
+    let url = `${HOST_1}/solving/vscode/${pset_title}`;
+    vscode.window.showInformationMessage("url problem set = " + url);
+    
     try {
-        // TODO: url encoding ?
-        const response = await fetch(`${HOST_1}/solving/vscode/${pset_title}`, {
+        const response = await fetch(url, {
             headers: {
                 cookie: `access_token=${accessToken}`
             }
