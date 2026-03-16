@@ -6,7 +6,7 @@ import { getUserSolving } from './check_command';
 const config = vscode.workspace.getConfiguration("b1");
 const HOST_1 = config.get<string>("host_1");
 const HOST_3 = config.get<string>("host_3");
-const TRACE_INTERVAL = config.get<number>("interval");
+const TRACE_INTERVAL = 3000;
 
 let timer: NodeJS.Timeout | undefined;
 

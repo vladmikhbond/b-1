@@ -3,6 +3,7 @@ import { langSuit, restTime } from './utils';
 import * as login from './login_command';
 
 const config = vscode.workspace.getConfiguration("b1");
+const HOST_1 = config.get<string>("host_1");  
 
 let fcounter = 0;
 
@@ -41,7 +42,7 @@ export async function checkCommand() {
             trace: login.trace?.toJson()
         };
 
-        const HOST_1 = config.get<string>("host_1");        
+      
         const response = await fetch(`${HOST_1}/check/`, {
             method: "POST",
             headers: {

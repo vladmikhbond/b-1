@@ -67,15 +67,7 @@
           "type": "string",
           "default": "https://tss.co.ua:7073",
           "description": "User server"
-        },
-        "b1.interval": {
-          "type": "integer",
-          "default": 3000,
-          "description": "Trace interval in msec"
         }
-
-
-
       }
     }
 
