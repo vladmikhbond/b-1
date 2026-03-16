@@ -1,11 +1,11 @@
 --- публікація розширення 
 
-scp C:\Git\TS\b1\b1-0.9.0.vsix vmbo@192.168.0.101:~/dock_bag
+scp C:\Git\TS\b1\b1-0.9.1.vsix vmbo@192.168.0.101:~/dock_bag
 
 ssh vmbo@192.168.0.101
 cd ~/dock_bag
-sudo cp b1-0.9.0.vsix ./data/public
+sudo cp b1-0.9.1.vsix ./data/public
 
 
-https://tss.co.ua:7074/public/b1-0.9.0.vsix
+https://tss.co.ua:7074/public/b1-0.9.1.vsix
 ---
