@@ -9,6 +9,7 @@
         "type": "extensionHost",
         "request": "launch",
         "preLaunchTask": "npm: compile",
+        "sourceMaps": true,
         "args": [
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],

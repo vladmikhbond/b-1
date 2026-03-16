@@ -2,9 +2,12 @@ import * as vscode from 'vscode';
 import { langSuit, restTime } from './utils';
 import { Trace } from './trace';
 import { getUserSolving } from './check_command';
-import {HOST_1, HOST_3} from './extension';
 
-const TRACE_INTERVAL = 3000;
+const config = vscode.workspace.getConfiguration("b1");
+const HOST_1 = config.get<string>("host_1");
+const HOST_3 = config.get<string>("host_3");
+const TRACE_INTERVAL = config.get<number>("interval");
+
 let timer: NodeJS.Timeout | undefined;
 
 export let accessToken: string | undefined;
@@ -20,98 +23,58 @@ export let deadline: number;  // date in msec
 export let trace: Trace | undefined;
 export let editor: vscode.TextEditor | undefined;
 
-
 export async function loginCommand() 
 {
-    // access token
-    const [username, password, pset_title] = await input();
-    
-    if (!username || !password || !pset_title) {
-        vscode.window.showErrorMessage("Login canceled or incomplete input.");
+    // get an accessToken
+
+    const username = config.get<string>("username");
+    const password = config.get<string>("password");
+    if (!username || !password) {
+        vscode.window.showErrorMessage("Check your username & password in B1 Settings.");
         return;
     }
-
     accessToken = await getToken(username, password);
     if (!accessToken) {
-         vscode.window.showErrorMessage("No access token.");
+         vscode.window.showErrorMessage("No access token. Check your username & password in B1 Settings");
         return;
     }
 
-    // problem to solve
-    problem = await getProblem(pset_title);
+    // get a problem & deadline
+    const probFullName = await vscode.window.showInputBox({
+        prompt: "Enter full problem name"
+    });
+    if (!probFullName) {
+        vscode.window.showErrorMessage("Full problem name required.");
+        return;
+    }
+    problem = await getProblem(probFullName);
     if (!problem) {
         vscode.window.showErrorMessage("Cannot to get a problem.");
         return;
     }
     deadline = Date.now() + problem.seconds * 1000;
 
-    // code editor
-
+    // open code editor
     editor = await saveAndOpenEditor(problem);
     if (!editor) {
         vscode.window.showErrorMessage("No code editor.");
         return;
     }
     
+    // start tracer
     trace = await initTracer();
     if (!trace) {
         vscode.window.showErrorMessage("No tracer.");
         return;
     }
 
-    // Successful initialization
     vscode.window.showInformationMessage(`Rest time = ${restTime()}`);
 }
 
 
-async function initTracer() {
-    const trace = new Trace();
-    trace.addText(getUserSolving(editor!, problem!));
-
-    if (timer) {
-        clearInterval(timer);
-    }
-    timer = setInterval(() => {
-        trace!.addText(getUserSolving(editor!, problem!));
-    }, TRACE_INTERVAL);
-    return trace;
-}
-
-async function input()
+async function getToken(username: string, password: string): Promise<string | undefined> 
 {
-    // return ["tutor", "qweszxcQWESZXC", "111"];
 
-    const username = await vscode.window.showInputBox({
-        prompt: "Enter username"
-    });
-
-    if (!username) {
-        vscode.window.showErrorMessage("Username is required");
-        return ["", "", ""];
-    }
-
-    const password = await vscode.window.showInputBox({
-        prompt: "Enter password",
-        password: true
-    });
-
-    if (!password) {
-        vscode.window.showErrorMessage("Password is required");
-        return ["", "", ""];
-    }
-
-    const pset_title = await vscode.window.showInputBox({
-        prompt: "Enter pset_title"
-    });
-
-    if (!pset_title) {
-        vscode.window.showErrorMessage("Worbook is required");
-        return ["", "", ""];
-    }
-    return [username, password, pset_title];
-}
-
-async function getToken(username: string, password: string): Promise<string | undefined> {
     try {
         const body = new URLSearchParams();
         body.append("username", username);
@@ -141,19 +104,19 @@ async function getToken(username: string, password: string): Promise<string | un
     }
 }
 
-async function getProblem(pset_title: string) {
-    if (!accessToken) {
-        vscode.window.showErrorMessage("Not authenticated");
-        return;
-    }
-    // TODO: url encoding ?
-    let url = `${HOST_1}/solving/vscode/${pset_title}`;
+// probFullName = "pset_name.prob_name"
+//
+async function getProblem(probFullName: string) 
+{
+    probFullName = encodeURIComponent(probFullName);
+    let url = `${HOST_1}/solving/vscode?fullname=${probFullName}`;
+    
     vscode.window.showInformationMessage("url problem set = " + url);
     
     try {
         const response = await fetch(url, {
             headers: {
-                cookie: `access_token=${accessToken}`
+                cookie: `access_token=${accessToken!}`
             }
         });
 
@@ -193,6 +156,21 @@ async function saveAndOpenEditor(problem: Problem)
     const doc = await vscode.workspace.openTextDocument(fileUri);
     return await vscode.window.showTextDocument(doc);
 }
+
+
+async function initTracer() {
+    const trace = new Trace();
+    trace.addText(getUserSolving(editor!, problem!));
+
+    if (timer) {
+        clearInterval(timer);
+    }
+    timer = setInterval(() => {
+        trace!.addText(getUserSolving(editor!, problem!));
+    }, TRACE_INTERVAL);
+    return trace;
+}
+
 
 export function disposeLogin() {
     accessToken = undefined;    
