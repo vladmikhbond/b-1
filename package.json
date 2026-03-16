@@ -44,7 +44,22 @@
 					"group": "navigation"
 				}
 			]
-		}
+		},
+    "configuration": {
+      "title": "B1 Extension",
+      "properties": {
+        "b1.username": {
+          "type": "string",
+          "default": "noname",
+          "description": "User's name"
+        },
+        "b1.password": {
+          "type": "string",
+          "default": "123456",
+          "description": "User's password"
+        }
+      }
+    }
 
   },
   "scripts": {
