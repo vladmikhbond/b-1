@@ -3,6 +3,7 @@ import { langSuit, restTime } from './utils';
 import { Trace } from './trace';
 import { getUserSolving } from './check_command';
 
+// params
 const config = vscode.workspace.getConfiguration("b1");
 const HOST_1 = config.get<string>("host_1");
 const HOST_3 = config.get<string>("host_3");
@@ -19,7 +20,7 @@ export type Problem = {
     seconds: number
 };
 export let problem: Problem | undefined;
-export let deadline: number;  // date in msec
+export let deadline: number;  // UTC date in msec
 export let trace: Trace | undefined;
 export let editor: vscode.TextEditor | undefined;
 

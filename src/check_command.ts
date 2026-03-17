@@ -6,6 +6,7 @@ const config = vscode.workspace.getConfiguration("b1");
 const HOST_1 = config.get<string>("host_1");  
 
 let fcounter = 0;
+let fcounter2 = 0;
 
 export function focus_spy(state: vscode.WindowState) 
 {
@@ -14,6 +15,15 @@ export function focus_spy(state: vscode.WindowState)
         login.trace?.addComment("FOCUS LOST " + fcounter )
     }
 }
+
+export function focus_spy2(e: vscode.TabGroupChangeEvent) 
+{
+    if (true) {
+        fcounter2 += 1;
+        login.trace?.addComment("FOCUS LOST TABS" + fcounter2 )
+    }
+}
+
 
 // CHECK - send to the server solving and track
 //
@@ -29,20 +39,19 @@ export async function checkCommand() {
         return;
     }
 
-    try {
-        const editor = login.editor ?? vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage("No active editor");
-            return;
-        }
+    const editor = login.editor ?? vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+    }    
 
+    try {
         const data = {
             problem_id: login.problem.id,
             solving: getUserSolving(editor, login.problem),
             trace: login.trace?.toJson()
         };
 
-      
         const response = await fetch(`${HOST_1}/check/`, {
             method: "POST",
             headers: {
@@ -63,16 +72,16 @@ export async function checkCommand() {
             vscode.window.showErrorMessage("Trace does not work.");
         }
 
-        // відображує результат віддаленої перевірки рішення 
+        // показує час
         vscode.window.showInformationMessage(`Rest time = ${restTime()}`);
-        
+
+        // показує результат віддаленої перевірки рішення 
         const check_answer: any = await response.json();
         if (check_answer.startsWith("OK")) {
             vscode.window.showInformationMessage(JSON.stringify(check_answer));
         } else {
             vscode.window.showErrorMessage(JSON.stringify(check_answer));
         }
-        
     
     // зовсім неочікувані помилки
 	} catch (err: any) {

@@ -13,11 +13,7 @@
     "vscode": "^1.85.0"
   },
   "main": "./out/extension.js",
-  "activationEvents": [
-    "onCommand:b1.login",
-    "onCommand:b1.check",
-    "onCommand:b1.help"
-  ],
+
   "contributes": {
     "commands": [
       {
@@ -51,12 +47,12 @@
         "b1.username": {
           "type": "string",
           "default": "",
-          "description": "User's name"
+          "description": "User name"
         },
         "b1.password": {
           "type": "string",
           "default": "",
-          "description": "User's password"
+          "description": "User password"
         },
         "b1.host_1": {
           "type": "string",
