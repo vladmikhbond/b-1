@@ -13,12 +13,15 @@
     "vscode": "^1.85.0"
   },
   "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:b1.login"
+  ],
 
   "contributes": {
     "commands": [
       {
         "command": "b1.login",
-        "title": "b1: Login"
+        "title": "LOGIN"
       },
       {
         "command": "b1.check",
@@ -31,6 +34,10 @@
     ],
     "menus": {
 			"editor/title": [
+				{
+					"command": "b1.login",
+					"group": "navigation"
+				},
 				{
 					"command": "b1.check",
 					"group": "navigation"
