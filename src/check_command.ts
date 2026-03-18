@@ -6,7 +6,7 @@ const config = vscode.workspace.getConfiguration("b1");
 const HOST_1 = config.get<string>("host_1");  
 
 let fcounter = 0;
-let fcounter2 = 0;
+let tcounter = 0;
 
 export function focus_spy(state: vscode.WindowState) 
 {
@@ -18,10 +18,8 @@ export function focus_spy(state: vscode.WindowState)
 
 export function focus_spy2(e: vscode.TabGroupChangeEvent) 
 {
-    if (true) {
-        fcounter2 += 1;
-        login.trace?.addComment("FOCUS LOST TABS" + fcounter2 )
-    }
+    tcounter += 1;
+    login.trace?.addComment("TAB CHANGED" + tcounter )
 }
 
 
