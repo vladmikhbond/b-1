@@ -64,7 +64,6 @@ export async function loginCommand()
         return;
     }
 
-    
     // start tracer
     trace = await initTracer();
     if (!trace) {
@@ -72,7 +71,6 @@ export async function loginCommand()
         return;
     }
 
-    
     vscode.window.showInformationMessage(`Rest time = ${restTime()}`);
 }
 
@@ -92,7 +90,7 @@ async function getToken(username: string, password: string): Promise<string>
     });
 
     if (!response.ok) {
-        throw new Error(`Cannot get the access token. Response status: ${response.status}. Check your username & password in B1 Settings`);
+        throw new Error(`Cannot get the access token. HOST_3 response status: ${response.status}. Check your username & password in B1 Settings`);
     }
 
     const tokenResponse: unknown = await response.json();

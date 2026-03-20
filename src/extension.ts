@@ -19,15 +19,6 @@ export function activate(context: vscode.ExtensionContext)
 
     disposable = vscode.window.tabGroups.onDidChangeTabGroups(focus_spy2);
     context.subscriptions.push(disposable);
-
-    // vscode.window.tabGroups.onDidChangeTabs(e => {
-    //     console.log("onDidChangeTabs", e)
-    // });
-
-    // vscode.window.onDidChangeVisibleTextEditors(editors => {
-    //     console.log("onDidChangeVisibleTextEditors", editors)
-    // });
-
 }
 
 export function deactivate() {
