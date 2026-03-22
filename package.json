@@ -26,10 +26,6 @@
       {
         "command": "b1.check",
         "title": "CHECK"
-      },
-      {
-        "command": "b1.help",
-        "title": "HELP"
       }
     ],
     "menus": {
@@ -40,10 +36,6 @@
 				},
 				{
 					"command": "b1.check",
-					"group": "navigation"
-				},
-				{
-					"command": "b1.help",
 					"group": "navigation"
 				}
 			]
