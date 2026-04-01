@@ -133,7 +133,13 @@ async function saveAndOpenEditor(problem: Problem)
     }
 
     const { ext, open, close, begin, end } = langSuit(problem.lang);
-    const text = `${open}\n${problem.cond}\n${close}\n${begin}\n${problem.view}\n${end}`;
+    
+    // if comements //BEGIN...//END are present do not insert them
+    const view = problem.view.indexOf(begin) != -1 && problem.view.indexOf(end) != -1 ?
+        problem.view :
+        `${begin}\n${problem.view}\n${end}`;
+
+    const text = `${open}\n${problem.cond}\n${close}\n${view}`;
     
     const fileUri = vscode.Uri.joinPath(folder.uri, `prog.${ext}`);
 
