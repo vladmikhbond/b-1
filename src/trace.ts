@@ -7,12 +7,6 @@ export class Trace {
     diffs: Diff[] = [];
     lastText = "";
 
-    // ??????????????
-    // constructor() {
-    //     this.diffs = [];
-    //     this.lastText = "";
-    // }
-
     // Екземпляр траси з масиву різниць
     //
     static fromDifferences(diffs: [Diff]) {

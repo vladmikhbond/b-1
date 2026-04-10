@@ -49,7 +49,9 @@ export async function loginCommand()
         return;
     }
     try {
-        problem = await getProblem(probFullName);        
+        
+        // problem = await getProblem(probFullName);  
+        problem = await postProblem(probFullName);       
     } catch (err: any) {
         vscode.window.showErrorMessage("Gettihg problem failed. " + (err?.message ?? String(err)));
         return;
@@ -103,7 +105,39 @@ async function getToken(username: string, password: string): Promise<string>
 
 // probFullName = "pset_name.prob_name"
 //
-async function getProblem(probFullName: string): Promise<Problem>   
+async function postProblem(probFullName: string)
+{
+    const body = new URLSearchParams();
+    body.append("fullName", probFullName);
+    body.append("extList", aiSpy());
+
+    const url = `${HOST_1}/solving/vs_code`;
+        
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            cookie: `access_token=${accessToken!}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: body.toString()
+    });
+
+    if (!response.ok) {
+        throw new Error(`HOST_1 response status: ${response.status}.`);
+    }
+
+    const problemResponse: unknown = await response.json();
+    if (!problemResponse || typeof problemResponse !== "object") {
+        throw new Error("Invalid problem payload");
+    }
+    return problemResponse as Problem;
+}
+
+
+
+// probFullName = "pset_name.prob_name"
+//
+async function getProblem(probFullName: string)
 {
     const param = encodeURIComponent(probFullName);
     const url = `${HOST_1}/solving/vscode?fullname=${param}`;
@@ -174,3 +208,24 @@ export function disposeLogin() {
     }
 }
 
+// vs code extensions
+export function aiSpy() 
+{
+	const extensions = vscode.extensions.all;
+	let report = ""
+	extensions.forEach(ext => {
+		if (test(ext.id.toLowerCase())) {
+			report += `ID: ${ext.id}  Active: ${ext.isActive} \n`
+		}
+	});
+	return report;
+
+	function test(ext_id:string) {
+		let words = ["chat", "copilot", "gpt"];
+		for (let word of words) {
+			if (ext_id.indexOf(word) != -1)
+				return true;
+		}
+		return false;
+	}
+}

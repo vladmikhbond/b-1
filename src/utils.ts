@@ -1,4 +1,5 @@
 import {deadline} from './login_command';
+import * as vscode from 'vscode';
 
 // Символи коментаря в умові та регулярний вираз для виділення рішення залежить від мови задачі
 //
@@ -57,9 +58,11 @@ export function langSuit(lang: string): LangSuit {
 }
 
 // rest time as string  (like 3'23")
+//
 export function restTime() {
 	let totsec = (deadline - Date.now()) /1000 | 0;
 	let sec = totsec % 60;
 	let min = (totsec - sec) / 60;
 	return `${min}' ${sec}"`;
 }
+
