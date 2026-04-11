@@ -214,18 +214,27 @@ export function aiSpy()
 	const extensions = vscode.extensions.all;
 	let report = ""
 	extensions.forEach(ext => {
-		if (test(ext.id.toLowerCase())) {
+        const id = ext.id.toLowerCase()
+        if (AI_EXT.includes(id)) {
 			report += `ID: ${ext.id}  Active: ${ext.isActive} \n`
 		}
 	});
 	return report;
-
-	function test(ext_id:string) {
-		let words = ["chat", "copilot", "gpt"];
-		for (let word of words) {
-			if (ext_id.indexOf(word) != -1)
-				return true;
-		}
-		return false;
-	}
 }
+
+const AI_EXT =`
+github.copilot-chat
+ms-azuretools.vscode-azure-github-copilot
+continue.continue
+codeium.codeium
+google.geminicodeassist
+anthropic.claude-code
+openai.chatgpt
+saoudrizwan.claude-dev
+blackboxapp.blackboxagent
+rooveterinaryinc.roo-cline
+sourcery.sourcery
+kilocode.kilo-code
+teamsdevapp.vscode-ai-foundry
+augment.vscode-augment
+`
