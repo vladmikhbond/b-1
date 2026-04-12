@@ -26,7 +26,7 @@ export let editor: vscode.TextEditor | undefined;
 
 export async function loginCommand() 
 {
-    // get an accessToken
+    // get an access token
     const username = config.get<string>("username");
     const password = config.get<string>("password");
     if (!username || !password) {
@@ -67,7 +67,7 @@ export async function loginCommand()
     }
 
     // start tracer
-    trace = await initTracer();
+    trace = initTracer();
     if (!trace) {
         vscode.window.showErrorMessage("No tracer.");
         return;
@@ -103,7 +103,8 @@ async function getToken(username: string, password: string): Promise<string>
     return tokenResponse;
 }
 
-// probFullName = "pset_name.prob_name"
+// Надсилае методом POST повне ім'я задачі в форматі "pset_name.prob_name" і список ШІ-розширень.
+// Отримує від серверу опис задачі.
 //
 async function postProblem(probFullName: string)
 {
@@ -126,39 +127,15 @@ async function postProblem(probFullName: string)
         throw new Error(`HOST_1 response status: ${response.status}.`);
     }
 
-    const problemResponse: unknown = await response.json();
-    if (!problemResponse || typeof problemResponse !== "object") {
+    const jsonObject: unknown = await response.json();
+    if (!jsonObject || typeof jsonObject !== "object") {
         throw new Error("Invalid problem payload");
     }
-    return problemResponse as Problem;
+    return jsonObject as Problem;
 }
 
-
-
-// probFullName = "pset_name.prob_name"
-//
-async function getProblem(probFullName: string)
-{
-    const param = encodeURIComponent(probFullName);
-    const url = `${HOST_1}/solving/vscode?fullname=${param}`;
-        
-    const response = await fetch(url, {
-        headers: {
-            cookie: `access_token=${accessToken!}`
-        }
-    });
-
-    if (!response.ok) {
-        throw new Error(`HOST_1 response status: ${response.status}. Param=${param}`);
-    }
-
-    const problemResponse: unknown = await response.json();
-    if (!problemResponse || typeof problemResponse !== "object") {
-        throw new Error("Invalid problem payload");
-    }
-    return problemResponse as Problem;
-}
-
+// За отриманим описом задачі будує файл prog.xx і відкриває його у вікні редактора.
+// 
 async function saveAndOpenEditor(problem: Problem) 
 {
     const folder = vscode.workspace.workspaceFolders?.[0];
@@ -187,7 +164,7 @@ async function saveAndOpenEditor(problem: Problem)
 }
 
 
-async function initTracer() {
+function initTracer() {
     const trace = new Trace();
     trace.addText(getUserSolving(editor!, problem!));
 
